@@ -12,7 +12,6 @@ let data = [{
     "abc": "sdef"
 }]
 
-
 document.getElementById('button').addEventListener("click", async () => {
     XLSX.utils.json_to_sheet(data, 'out.xlsx');
     if (selectedFile) {
@@ -21,13 +20,9 @@ document.getElementById('button').addEventListener("click", async () => {
         fileReader.onload = (event) => {
             let data = event.target.result;
             let workbook = XLSX.read(data, { type: "binary" });
-            // console.log(workbook);
             workbook.SheetNames.forEach(sheet => {
                 let rowObject = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheet]);
-                // console.log(rowObject);
-
                 jsonData = rowObject;
-                // console.log(jsonData);
                 getDepartments();
             });
         }
@@ -167,11 +162,10 @@ const setProductsToCategories = async () => {
     categories_w_departments.forEach(cat => {
         let prod = jsonData.filter(p => cat['DepartamentoArray'].includes(p.Departamento));
         let strinfyProd = JSON.stringify(prod);
-        let simpleProds = strinfyProd.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-        let noDots = simpleProds.replace("P. Venta", "Precio")
+        let simpleProds = strinfyProd.normalize('NFD').replace(/[\u0300-\u036f]/g, "") // Remove special characters from json string like ´ (accents) from json data keys
+        let noDots = simpleProds.replace("P. Venta", "Precio") // Replace json data keys with dots and spaces to single word key
         let jsonProds = JSON.parse(noDots);
-        // let jsonProd = [{...prod}];
-        // console.log(jsonProds)
+
         jsonProds.forEach((p) => {
             let prod_min = {
                 "categoria_id": cat["ID"],
@@ -188,10 +182,12 @@ const setProductsToCategories = async () => {
 
     });
     document.getElementById("jsondata").innerHTML = JSON.stringify(categories_w_departments, undefined, 4)
-    // console.log(categories_w_departments)
     categories_w_departments.forEach(cat => {
-        categories_w_departments
+        cat.Productos.forEach(p => {
+            onlyProducts.push(p);
+        });
     })
+    document.getElementById("jsondata-single").innerHTML = JSON.stringify(onlyProducts, undefined, 4)
     createJSONFile();
 }
 
